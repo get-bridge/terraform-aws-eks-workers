@@ -13,6 +13,11 @@ variable "cluster_certificate_authority_data" {
   description = "The base64 encoded certificate data required to communicate with the cluster"
 }
 
+variable "cluster_cidr" {
+  type        = string
+  description = "The ipv4 cidr of EKS cluster"
+}
+
 variable "cluster_security_group_ingress_enabled" {
   type        = bool
   description = "Whether to enable the EKS cluster Security Group as ingress to workers Security Group"
@@ -69,6 +74,12 @@ variable "eks_worker_ami_name_regex" {
   type        = string
   description = "A regex string to apply to the AMI list returned by AWS"
   default     = "^amazon-eks-node-[1-9,.]+-v[0-9]{8}$"
+}
+
+variable "ami_os_type" {
+  type        = string
+  description = "The AMI image os type. It will be either AL2 or AL2023"
+  default     = "AL2023"
 }
 
 variable "instance_type" {

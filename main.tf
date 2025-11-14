@@ -6,6 +6,13 @@ locals {
 
   workers_role_arn  = var.use_existing_aws_iam_instance_profile ? join("", data.aws_iam_instance_profile.default.*.role_arn) : join("", aws_iam_role.default.*.arn)
   workers_role_name = var.use_existing_aws_iam_instance_profile ? join("", data.aws_iam_instance_profile.default.*.role_name) : join("", aws_iam_role.default.*.name)
+
+  kubelet_extra_args_yaml = yamlencode(regexall("(--[^ ]+)", var.kubelet_extra_args))
+
+  userdata_template_file = {
+    AL2    = "${path.module}/userdata.tpl"
+    AL2023 = "${path.module}/userdata_al2023.tpl"
+  }
 }
 
 module "label" {
@@ -148,14 +155,16 @@ data "aws_ami" "eks_worker" {
 
 data "template_file" "userdata" {
   count    = local.enabled ? 1 : 0
-  template = file("${path.module}/userdata.tpl")
+  template = file(local.userdata_template_file[var.ami_os_type])
 
   vars = {
     cluster_endpoint                = var.cluster_endpoint
     certificate_authority_data      = var.cluster_certificate_authority_data
     cluster_name                    = var.cluster_name
+    cluster_cidr                    = var.cluster_cidr
     bootstrap_extra_args            = var.bootstrap_extra_args
     kubelet_extra_args              = var.kubelet_extra_args
+    kubelet_extra_args_yaml         = local.kubelet_extra_args_yaml
     before_cluster_joining_userdata = var.before_cluster_joining_userdata
     after_cluster_joining_userdata  = var.after_cluster_joining_userdata
   }
