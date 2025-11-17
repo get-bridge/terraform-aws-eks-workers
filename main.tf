@@ -7,7 +7,7 @@ locals {
   workers_role_arn  = var.use_existing_aws_iam_instance_profile ? join("", data.aws_iam_instance_profile.default.*.role_arn) : join("", aws_iam_role.default.*.arn)
   workers_role_name = var.use_existing_aws_iam_instance_profile ? join("", data.aws_iam_instance_profile.default.*.role_name) : join("", aws_iam_role.default.*.name)
 
-  kubelet_extra_args_yaml = yamlencode(regexall("(--[^ ]+)", var.kubelet_extra_args))
+  kubelet_extra_args_yaml = yamlencode(regexall("--[^ ]+", var.kubelet_extra_args))
 
   userdata_template_file = {
     AL2    = "${path.module}/userdata.tpl"
